@@ -33,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define		MAIN_CYCLE_TOGGLE_LED		3000000//2200000 = 1s; 1020 = 1ms
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,7 +44,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint32_t main_cycle_counter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -110,6 +110,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  main_cycle_counter++;
+	  	if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
+	  		main_cycle_counter = 0;
+	  		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin );    //Green LED Toggle
+	  	}
+
   }
   /* USER CODE END 3 */
 }
