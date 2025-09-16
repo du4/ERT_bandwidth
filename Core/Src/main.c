@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "lwip.h"
 #include "usart.h"
 #include "gpio.h"
@@ -25,6 +26,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "arm_math.h"
+#include "inet.h"
+#include "udpClient.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,8 +48,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+extern UART_HandleTypeDef huart2;
+
+uint8_t ethPressuresBankFullStatus = RESET;
 uint32_t main_cycle_counter = 0;
-QFullPacket packet;
+ALIGN_32BYTES (volatile QFullPacket packet);
+
+uint32_t packetIndex = 0;
+QSectionPacket* pFirstSectionPacket;
+
+ip4_addr_t	udpServerAddr;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -54,6 +65,14 @@ void SystemClock_Config(void);
 static void MPU_Initialize(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
+	ethPressuresBankFullStatus = SET;
+	pFirstSectionPacket = &(packet.firstSectionPacket0) + (packetIndex%2);
+	packetIndex++;
+//	SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket0, 2*sizeof(QSectionPacket));
+//	HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket0), 2*sizeof(QSectionPacket));
+}
 
 /* USER CODE END PFP */
 
@@ -99,25 +118,36 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_LWIP_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  udpServerAddr.addr =  inet_addr("192.168.0.53");
 
+  SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket0, 2*sizeof(QSectionPacket));
+  HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket0), 2*sizeof(QSectionPacket));
+
+  /* UDP client connect */
+    udpClientConnect(udpServerAddr, UDP_PORT);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1){
 	  MX_LWIP_Process();
+
+	  if(ethPressuresBankFullStatus == SET){
+		  ethPressuresBankFullStatus = RESET;
+		  udpClientSend(pFirstSectionPacket, SECTION_PACKET_SIZE);
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	main_cycle_counter++;
-	if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
+	  main_cycle_counter++;
+	  if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
 		main_cycle_counter = 0;
 		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin);    //Green LED Toggle
-	}
+	  }
 
   }
   /* USER CODE END 3 */

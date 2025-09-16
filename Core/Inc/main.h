@@ -41,31 +41,27 @@ extern "C" {
 #define STEP_SIZE				8
 #define ELECTRODE_COUNT			8
 #define LPC_PACKET_DATA_SIZE	24
+#define SECTION_PACKET_SIZE		228
 
-typedef struct{
-	uint32_t cutIndex;
+#define UDP_PORT				1899
+
+typedef struct{ // size = 24
 	uint8_t data[LPC_PACKET_DATA_SIZE];
-}QLpcOneCutPacket;
+}QOneLpcCutPacket;
 
 typedef struct{
-	uint32_t cutIndex;
-	uint8_t data[LPC_PACKET_DATA_SIZE];
-}QCurrentCutPacket;
+	uint32_t cutIndex;								// size = 4
+	QOneLpcCutPacket steps[STEP_SIZE];				// size = 8*24
+	uint8_t currentSamples[LPC_PACKET_DATA_SIZE]; 	// size = 24
+	float32_t temperature;							// size = 4
+	uint32_t status;								// size = 4
+}QSectionPacket;									// total size = 12 + 9*24 = 12+216 = 228
 
-
-typedef struct{
-	uint32_t cutIndex;
-	QLpcOneCutPacket steps[STEP_SIZE];
-	QCurrentCutPacket currentSamples;
-	float32_t temperature;
-	uint32_t status;
-}QSectionPacket;
-
-typedef struct{//There are two entities for double buffer DMA
-	QSectionPacket firstSectionPacket0;
-	QSectionPacket secondSectionPacket0;
-	QSectionPacket firstSectionPacket1;
-	QSectionPacket secondSectionPacket1;
+typedef struct{//There are two entities for double buffered DMA
+	QSectionPacket firstSectionPacket0; // size = 228
+	QSectionPacket firstSectionPacket1; // size = 228
+	QSectionPacket secondSectionPacket0;// size = 228
+	QSectionPacket secondSectionPacket1;// size = 228
 }QFullPacket;
 
 
