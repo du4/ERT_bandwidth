@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +45,7 @@
 
 /* USER CODE BEGIN PV */
 uint32_t main_cycle_counter = 0;
+QFullPacket packet;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

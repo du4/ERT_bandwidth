@@ -31,11 +31,43 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+#define CUSTOM_FLOAT_SIZE		3
+#define LPC_SIZE				8
+#define STEP_SIZE				8
+#define ELECTRODE_COUNT			8
+#define LPC_PACKET_DATA_SIZE	24
+
+typedef struct{
+	uint32_t cutIndex;
+	uint8_t data[LPC_PACKET_DATA_SIZE];
+}QLpcOneCutPacket;
+
+typedef struct{
+	uint32_t cutIndex;
+	uint8_t data[LPC_PACKET_DATA_SIZE];
+}QCurrentCutPacket;
+
+
+typedef struct{
+	uint32_t cutIndex;
+	QLpcOneCutPacket steps[STEP_SIZE];
+	QCurrentCutPacket currentSamples;
+	float32_t temperature;
+	uint32_t status;
+}QSectionPacket;
+
+typedef struct{//There are two entities for double buffer DMA
+	QSectionPacket firstSectionPacket0;
+	QSectionPacket secondSectionPacket0;
+	QSectionPacket firstSectionPacket1;
+	QSectionPacket secondSectionPacket1;
+}QFullPacket;
+
 
 /* USER CODE END ET */
 
