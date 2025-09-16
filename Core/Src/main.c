@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "lwip.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -99,6 +100,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_LWIP_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -111,11 +113,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  main_cycle_counter++;
-	  	if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
-	  		main_cycle_counter = 0;
-	  		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin );    //Green LED Toggle
-	  	}
+	main_cycle_counter++;
+	if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
+		main_cycle_counter = 0;
+		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin);    //Green LED Toggle
+	}
 
   }
   /* USER CODE END 3 */
