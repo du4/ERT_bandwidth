@@ -55,7 +55,7 @@ uint32_t main_cycle_counter = 0;
 ALIGN_32BYTES (volatile QFullPacket packet);
 
 uint32_t packetIndex = 0;
-QSectionPacket* pFirstSectionPacket;
+QFirstSectionPacket* pFirstSectionPacket;
 
 ip4_addr_t	udpServerAddr;
 /* USER CODE END PV */
@@ -68,7 +68,7 @@ static void MPU_Config(void);
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
 	ethPressuresBankFullStatus = SET;
-	pFirstSectionPacket = &(packet.firstSectionPacket0) + (packetIndex%2);
+	pFirstSectionPacket = &(packet.firstSectionPacket[0]) + (packetIndex%2);
 	packetIndex++;
 //	SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket0, 2*sizeof(QSectionPacket));
 //	HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket0), 2*sizeof(QSectionPacket));
@@ -124,11 +124,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
-  SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket0, 2*sizeof(QSectionPacket));
-  HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket0), 2*sizeof(QSectionPacket));
+  SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket[0], 2*sizeof(QFirstSectionPacket));
+  HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket[0]), 2*sizeof(QFirstSectionPacket));
 
   /* UDP client connect */
-    udpClientConnect(udpServerAddr, UDP_PORT);
+  udpClientConnect(udpServerAddr, UDP_PORT);
   /* USER CODE END 2 */
 
   /* Infinite loop */
