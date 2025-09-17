@@ -68,6 +68,7 @@ ip4_addr_t	udpServerAddr;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MPU_Initialize(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
