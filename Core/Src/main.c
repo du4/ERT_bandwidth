@@ -52,9 +52,9 @@ extern UART_HandleTypeDef huart2;
 
 uint8_t ethPressuresBankFullStatus = RESET;
 uint32_t main_cycle_counter = 0;
-ALIGN_32BYTES (volatile QFullPacket packet);
+ALIGN_32BYTES (QFullPacket packet);
 
-uint32_t packetIndex = 0;
+uint32_t cutId = 0;
 QFirstSectionPacket* pFirstSectionPacket;
 
 ip4_addr_t	udpServerAddr;
@@ -62,16 +62,27 @@ ip4_addr_t	udpServerAddr;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MPU_Initialize(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
+	pFirstSectionPacket = &(packet.firstSectionPacket[0]) + (cutId%(2*FIRST_SECTION_CUTS_PER_PACKET));
+	cutId += FIRST_SECTION_CUTS_PER_PACKET;
 	ethPressuresBankFullStatus = SET;
-	pFirstSectionPacket = &(packet.firstSectionPacket[0]) + (packetIndex%2);
-	packetIndex++;
 //	SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket0, 2*sizeof(QSectionPacket));
 //	HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket0), 2*sizeof(QSectionPacket));
+}
+
+
+void prepareData(size_t cutId){
+	for (size_t cut = 0; cut < FIRST_SECTION_CUTS_PER_PACKET; ++cut) {
+		QFirstSectionPacket* pPacket = pFirstSectionPacket + cut;
+		for (size_t step = 0; step < STEP_SIZE; ++step) {
+			c.steps[step].cutIndex = cut;
+			c.currentSamples.cutIndex = cut;
+		}
+		cut.temperature = 36.6;
+	}
 }
 
 /* USER CODE END PFP */
@@ -124,11 +135,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
-  SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket[0], 2*sizeof(QFirstSectionPacket));
-  HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket[0]), 2*sizeof(QFirstSectionPacket));
+  SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket[0], 10*sizeof(QFirstSectionPacket));
 
-  /* UDP client connect */
+  pFirstSectionPacket = &packet.firstSectionPacket[0];
+  prepareData(cutId);
+
+   /* UDP client connect */
   udpClientConnect(udpServerAddr, UDP_PORT);
+
+  HAL_UART_Receive_DMA (&huart2, (uint8_t *)pFirstSectionPacket, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
   /* USER CODE END 2 */
 
   /* Infinite loop */

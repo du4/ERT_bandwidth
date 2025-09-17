@@ -44,6 +44,8 @@ extern "C" {
 #define LPC_PACKET_DATA_SIZE	24
 #define SECTION_PACKET_SIZE		300
 
+#define FIRST_SECTION_CUTS_PER_PACKET	5
+
 #define UDP_PORT				1899
 
 typedef struct{ // size = 28
@@ -68,8 +70,8 @@ typedef struct{
 	uint32_t status;									// size = 4
 }QSecondSectionPacket;									// total size = 8*28 + 4 = 228
 typedef struct{//There are two entities for double buffered DMA
-	QFirstSectionPacket firstSectionPacket[2]; 			// size = 600
-	QSecondSectionPacket secondSectionPacket[2];		// size = 456
+	QFirstSectionPacket firstSectionPacket[2*FIRST_SECTION_CUTS_PER_PACKET]; 			// size = 300 * 5 * 2
+	QSecondSectionPacket secondSectionPacket[2*FIRST_SECTION_CUTS_PER_PACKET];			// size = 228 *5 * 2
 }QFullPacket;
 
 
