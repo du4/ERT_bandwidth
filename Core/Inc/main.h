@@ -95,6 +95,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define uSecondTimPrescaller 274
 #define LD1_GR_Pin GPIO_PIN_0
 #define LD1_GR_GPIO_Port GPIOB
 #define LD3_RED_Pin GPIO_PIN_14

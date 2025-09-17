@@ -20,6 +20,7 @@
 #include "main.h"
 #include "dma.h"
 #include "lwip.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -48,14 +49,19 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern UART_HandleTypeDef huart2;
+extern TIM_HandleTypeDef htim4;
+extern DMA_HandleTypeDef hdma_uart5_tx;
+extern UART_HandleTypeDef huart5;
 
 uint8_t ethPressuresBankFullStatus = RESET;
 uint32_t main_cycle_counter = 0;
-ALIGN_32BYTES (QFullPacket packet);
+ALIGN_32BYTES (QFullPacket packetRX);
+ALIGN_32BYTES (QFullPacket packetTX);
 
-uint32_t cutId = 0;
-QFirstSectionPacket* pFirstSectionPacket;
+size_t cutIdRx = 0;
+size_t cutIdTx = 0;
+QFirstSectionPacket* pFirstSectionPacketRX;
+QFirstSectionPacket* pFirstSectionPacketTX;
 
 ip4_addr_t	udpServerAddr;
 /* USER CODE END PV */
@@ -65,23 +71,30 @@ void SystemClock_Config(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
-	pFirstSectionPacket = &(packet.firstSectionPacket[0]) + (cutId%(2*FIRST_SECTION_CUTS_PER_PACKET));
-	cutId += FIRST_SECTION_CUTS_PER_PACKET;
-	ethPressuresBankFullStatus = SET;
-//	SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket0, 2*sizeof(QSectionPacket));
-//	HAL_UART_Receive_DMA (&huart2, (uint8_t *)(&packet.firstSectionPacket0), 2*sizeof(QSectionPacket));
-}
-
-
 void prepareData(size_t cutId){
 	for (size_t cut = 0; cut < FIRST_SECTION_CUTS_PER_PACKET; ++cut) {
-		QFirstSectionPacket* pPacket = pFirstSectionPacket + cut;
+		QFirstSectionPacket* pPacket = pFirstSectionPacketTX + cut;
 		for (size_t step = 0; step < STEP_SIZE; ++step) {
-			c.steps[step].cutIndex = cut;
-			c.currentSamples.cutIndex = cut;
+			pPacket->steps[step].cutIndex = cutId + cut;
+			pPacket->currentSamples.cutIndex = cutId + cut;
 		}
-		cut.temperature = 36.6;
+		pPacket->temperature = 36.6;
+	}
+}
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart5){
+		pFirstSectionPacketRX = &(packetRX.firstSectionPacket[0]) + (cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET));
+		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
+		ethPressuresBankFullStatus = SET;
+	}
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart4){
+		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
+		pFirstSectionPacketTX = &(packetTX.firstSectionPacket[0]) + (cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET));
+		prepareData(cutIdTx);
 	}
 }
 
@@ -131,19 +144,23 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_LWIP_Init();
-  MX_USART2_UART_Init();
+  MX_UART4_Init();
+  MX_UART5_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
-  SCB_InvalidateDCache_by_Addr((uint32_t *) &packet.firstSectionPacket[0], 10*sizeof(QFirstSectionPacket));
-
-  pFirstSectionPacket = &packet.firstSectionPacket[0];
-  prepareData(cutId);
+  memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET*sizeof(QFirstSectionPacket));
+  pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
+  pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
+  prepareData(cutIdTx);
 
    /* UDP client connect */
   udpClientConnect(udpServerAddr, UDP_PORT);
 
-  HAL_UART_Receive_DMA (&huart2, (uint8_t *)pFirstSectionPacket, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
+  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
+
+  HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,7 +170,7 @@ int main(void)
 
 	  if(ethPressuresBankFullStatus == SET){
 		  ethPressuresBankFullStatus = RESET;
-		  udpClientSend(pFirstSectionPacket, SECTION_PACKET_SIZE);
+		  udpClientSend(pFirstSectionPacketRX, SECTION_PACKET_SIZE);
 	  }
     /* USER CODE END WHILE */
 
