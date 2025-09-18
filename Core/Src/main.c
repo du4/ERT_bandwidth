@@ -64,6 +64,9 @@ QFirstSectionPacket* pFirstSectionPacketRX;
 QFirstSectionPacket* pFirstSectionPacketTX;
 
 ip4_addr_t	udpServerAddr;
+
+uint32_t usart4_interrupt_conter = 0;
+uint32_t usart5_interrupt_conter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -159,7 +162,7 @@ int main(void)
    /* UDP client connect */
   udpClientConnect(udpServerAddr, UDP_PORT);
 
-  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
+//  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
 
   HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */
@@ -179,7 +182,7 @@ int main(void)
 	  main_cycle_counter++;
 	  if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
 		main_cycle_counter = 0;
-		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin);    //Green LED Toggle
+		HAL_GPIO_TogglePin(LD2_YEL_GPIO_Port, LD2_YEL_Pin);    //Green LED Toggle
 	  }
 
   }
