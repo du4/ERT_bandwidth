@@ -55,14 +55,16 @@ extern UART_HandleTypeDef huart5;
 
 uint8_t ethPressuresBankFullStatus = RESET;
 uint32_t main_cycle_counter = 0;
-ALIGN_32BYTES (QFullPacket packetRX);
-ALIGN_32BYTES (QFullPacket packetTX);
+//ALIGN_32BYTES (QFullPacket packetRX);
+QFullPacket packetRX;
+//ALIGN_32BYTES (QFullPacket packetTX);
+QFullPacket packetTX;
 
 size_t cutIdRx = 0;
 size_t cutIdTx = 0;
+
 QFirstSectionPacket* pFirstSectionPacketRX;
 QFirstSectionPacket* pFirstSectionPacketRxToUdp;
-
 QFirstSectionPacket* pFirstSectionPacketTX;
 
 ip4_addr_t	udpServerAddr;
@@ -159,8 +161,10 @@ int main(void)
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
   memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+
   pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
   pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
+
   prepareData(cutIdTx);
 
    /* UDP client connect */
@@ -180,6 +184,8 @@ int main(void)
 		  ethPressuresBankFullStatus = RESET;
 		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 	  }
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
