@@ -92,7 +92,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart5){
 		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
-		pFirstSectionPacketRX = &(packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)]);
+		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
 		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		ethPressuresBankFullStatus = SET;
 	}
@@ -101,7 +101,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
 		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
-		pFirstSectionPacketTX = &(packetTX.firstSectionPacket[0]) + (cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET));
+		pFirstSectionPacketTX = &packetTX.firstSectionPacket[cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
 		prepareData(cutIdTx);
 	}
 }
