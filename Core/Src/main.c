@@ -61,6 +61,8 @@ ALIGN_32BYTES (QFullPacket packetTX);
 size_t cutIdRx = 0;
 size_t cutIdTx = 0;
 QFirstSectionPacket* pFirstSectionPacketRX;
+QFirstSectionPacket* pFirstSectionPacketRxToUdp;
+
 QFirstSectionPacket* pFirstSectionPacketTX;
 
 ip4_addr_t	udpServerAddr;
@@ -71,6 +73,7 @@ uint32_t usart5_interrupt_conter = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MPU_Initialize(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
@@ -85,10 +88,12 @@ void prepareData(size_t cutId){
 	}
 }
 
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart){
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart5){
-		pFirstSectionPacketRX = &(packetRX.firstSectionPacket[0]) + (cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET));
+		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
+		pFirstSectionPacketRX = &(packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)]);
+		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		ethPressuresBankFullStatus = SET;
 	}
 }
@@ -153,7 +158,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
-  memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET*sizeof(QFirstSectionPacket));
+  memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
   pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
   pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
   prepareData(cutIdTx);
@@ -161,7 +166,7 @@ int main(void)
    /* UDP client connect */
   udpClientConnect(udpServerAddr, UDP_PORT);
 
-  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
+  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
   HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */
@@ -173,7 +178,7 @@ int main(void)
 
 	  if(ethPressuresBankFullStatus == SET){
 		  ethPressuresBankFullStatus = RESET;
-		  udpClientSend(pFirstSectionPacketRX, SECTION_PACKET_SIZE);
+		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 	  }
     /* USER CODE END WHILE */
 
