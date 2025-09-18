@@ -71,7 +71,6 @@ uint32_t usart5_interrupt_conter = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MPU_Initialize(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
@@ -162,7 +161,7 @@ int main(void)
    /* UDP client connect */
   udpClientConnect(udpServerAddr, UDP_PORT);
 
-//  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
+  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, 2 * FIRST_SECTION_CUTS_PER_PACKET * sizeof(QFirstSectionPacket));
 
   HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */

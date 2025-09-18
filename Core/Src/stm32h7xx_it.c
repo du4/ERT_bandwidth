@@ -64,8 +64,9 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart4;
 extern QFirstSectionPacket* pFirstSectionPacketTX;
 
-extern uint32_t usart4_interrupt_conter;
-extern uint32_t usart5_interrupt_conter;
+//extern uint32_t usart4_interrupt_conter;
+//extern uint32_t usart5_interrupt_conter;
+extern size_t cutIdTx;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -240,7 +241,11 @@ void DMA1_Stream1_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+	if(cutIdTx > 1000){
+		HAL_TIM_Base_Stop_IT(&htim4);
+	}else{
+		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+	}
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
@@ -254,7 +259,7 @@ void TIM4_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-	usart4_interrupt_conter++;
+//	usart4_interrupt_conter++;
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
@@ -268,7 +273,7 @@ void UART4_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
-	usart5_interrupt_conter++;
+//	usart5_interrupt_conter++;
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */
