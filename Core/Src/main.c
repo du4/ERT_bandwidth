@@ -95,6 +95,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
+		SCB_InvalidateDCache_by_Addr((uint32_t *) &pFirstSectionPacketRX, 1500);
 		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		ethPressuresBankFullStatus = SET;
 	}
@@ -176,6 +177,8 @@ int main(void)
    /* UDP client connect */
   udpClientConnect(udpServerAddr, UDP_PORT);
 
+
+  SCB_InvalidateDCache_by_Addr((uint32_t *) &pFirstSectionPacketRX, 1500);
   HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
   HAL_TIM_Base_Start_IT(&htim4);
