@@ -49,6 +49,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+  __IO     uint8_t uart_tx[8192] __attribute__((section(".bss.ARM.__at_0x24002350")));
+  __IO     uint8_t uart_rx[8192] __attribute__((section(".bss.ARM.__at_0x24004350")));
+
+  __IO	uint8_t aa,aa8;
+  __IO	uint16_t a;
+
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_uart5_tx;
 extern UART_HandleTypeDef huart5;
@@ -90,23 +96,48 @@ void prepareData(size_t cutId){
 	}
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	if(huart == &huart5){
-		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
-		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
-		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
-		ethPressuresBankFullStatus = SET;
-	}
-}
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+//	if(huart == &huart5){
+//		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
+//		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
+//		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
+//		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//		ethPressuresBankFullStatus = SET;
+//	}
+//}
+//
+//void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+//	if(huart == &huart4){
+//		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
+//		pFirstSectionPacketTX = &packetTX.firstSectionPacket[cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
+//		prepareData(cutIdTx);
+//	}
+//}
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+		{
+         if(huart == &huart4)//(huart->Instance == UART4)//if(huart == &huart4)
+				    {
+					    HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_14);//
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
-	if(huart == &huart4){
-		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
-		pFirstSectionPacketTX = &packetTX.firstSectionPacket[cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-		prepareData(cutIdTx);
-	}
-}
+				    }
+
+
+    }
+
+
+	///////////////////////////===========================================////////////////////////////
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+		{
+         if(huart == &huart5)//(huart->Instance == UART4)//if(huart == &huart4)
+				    {
+					    HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_11);//GREEN_LED
+							HAL_UART_Receive_DMA(&huart5, (uint8_t*)uart_rx, 8192);
+
+				    }
+
+
+    }
+
 
 /* USER CODE END PFP */
 
@@ -164,43 +195,57 @@ int main(void)
   MX_UART5_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+  for( a=8191;a--;){
+	  uart_tx[a]=aa8;
+	  aa8++;
+  }
+
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
-  memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//  memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
-  pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
-  pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
+//  pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
+//  pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
 
-  prepareData(cutIdTx);
+//  prepareData(cutIdTx);
 
    /* UDP client connect */
-  udpClientConnect(udpServerAddr, UDP_PORT);
+//  udpClientConnect(udpServerAddr, UDP_PORT);
 
-  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
-  HAL_TIM_Base_Start_IT(&htim4);
+//  HAL_TIM_Base_Start_IT(&htim4);
 //  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+
+  HAL_UART_Receive_DMA(&huart5, (uint8_t*)uart_rx, 8192);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1){
-	  MX_LWIP_Process();
+//	  MX_LWIP_Process();
 
-	  if(ethPressuresBankFullStatus == SET){
-		  ethPressuresBankFullStatus = RESET;
-		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
-	  }
+	  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)uart_tx, 8192);
+
+	  HAL_Delay(300);
+	   aa++;
+	  uart_tx[0] = aa;
+
+//	  if(ethPressuresBankFullStatus == SET){
+//		  ethPressuresBankFullStatus = RESET;
+//		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//	  }
 
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  main_cycle_counter++;
-	  if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
-		main_cycle_counter = 0;
-		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin);    //Green LED Toggle
-	  }
+//	  main_cycle_counter++;
+//	  if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
+//		main_cycle_counter = 0;
+//		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin);    //Green LED Toggle
+//	  }
 
   }
   /* USER CODE END 3 */
