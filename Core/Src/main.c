@@ -96,7 +96,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-//		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		ethPressuresBankFullStatus = SET;
 	}
 }
@@ -176,8 +176,8 @@ int main(void)
 
   HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
-//  HAL_TIM_Base_Start_IT(&htim4);
-  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+  HAL_TIM_Base_Start_IT(&htim4);
+//  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -197,7 +197,7 @@ int main(void)
 	  main_cycle_counter++;
 	  if (main_cycle_counter == MAIN_CYCLE_TOGGLE_LED){
 		main_cycle_counter = 0;
-		HAL_GPIO_TogglePin(LD2_YEL_GPIO_Port, LD2_YEL_Pin);    //Green LED Toggle
+		HAL_GPIO_TogglePin(LD1_GR_GPIO_Port, LD1_GR_Pin);    //Green LED Toggle
 	  }
 
   }

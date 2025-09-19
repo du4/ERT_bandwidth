@@ -228,8 +228,9 @@ void DMA1_Stream0_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	if(cutIdTx > 1000){
+	if(cutIdTx > 100){
 		HAL_TIM_Base_Stop_IT(&htim4);
+		cutIdTx = 101;
 	}else{
 		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
 	}
