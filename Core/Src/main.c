@@ -95,7 +95,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-		SCB_InvalidateDCache_by_Addr((uint32_t *) &pFirstSectionPacketRX, 1500);
+//		SCB_InvalidateDCache_by_Addr((uint32_t *)pFirstSectionPacketRX, 1500);
 		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		ethPressuresBankFullStatus = SET;
 	}
@@ -133,10 +133,10 @@ int main(void)
   /* Enable the CPU Cache */
 
   /* Enable I-Cache---------------------------------------------------------*/
-  SCB_EnableICache();
+//  SCB_EnableICache();
 
   /* Enable D-Cache---------------------------------------------------------*/
-  SCB_EnableDCache();
+//  SCB_EnableDCache();
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -160,39 +160,39 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_LWIP_Init();
+//  MX_LWIP_Init();
   MX_UART4_Init();
   MX_UART5_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
-  memset(&packetRX.firstSectionPacket[0], 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
   pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
   pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
 
+   /* UDP client connect */
+//  udpClientConnect(udpServerAddr, UDP_PORT);
+
+//  SCB_CleanDCache_by_Addr((uint32_t *) pFirstSectionPacketTX, 1500);
+//  SCB_InvalidateDCache_by_Addr((uint32_t *) pFirstSectionPacketRX, 1500);
+
   prepareData(cutIdTx);
 
-   /* UDP client connect */
-  udpClientConnect(udpServerAddr, UDP_PORT);
-
-
-  SCB_InvalidateDCache_by_Addr((uint32_t *) &pFirstSectionPacketRX, 1500);
   HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
-  HAL_TIM_Base_Start_IT(&htim4);
-//  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+//  HAL_TIM_Base_Start_IT(&htim4);
+  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1){
-	  MX_LWIP_Process();
+//	  MX_LWIP_Process();
 
 	  if(ethPressuresBankFullStatus == SET){
 		  ethPressuresBankFullStatus = RESET;
-		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 	  }
 
 
