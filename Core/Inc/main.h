@@ -70,7 +70,7 @@ typedef struct{
 	uint32_t status;									// size = 4
 }QSecondSectionPacket;									// total size = 8*28 + 4 = 228
 typedef struct{//There are two entities for double buffered DMA
-	ALIGN_32BYTES( QFirstSectionPacket firstSectionPacket[2*FIRST_SECTION_CUTS_PER_PACKET] ); 			// size = 300 * 5 * 2
+	ALIGN_32BYTES( QFirstSectionPacket  firstSectionPacket [2*FIRST_SECTION_CUTS_PER_PACKET] ); 			// size = 300 * 5 * 2
 	ALIGN_32BYTES( QSecondSectionPacket secondSectionPacket[2*FIRST_SECTION_CUTS_PER_PACKET] );			// size = 228 *5 * 2
 }QFullPacket;
 

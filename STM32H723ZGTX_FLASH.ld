@@ -173,8 +173,25 @@ SECTIONS
    /* Rx_Pool section must be added in linker */
     . = ABSOLUTE(0x30000200);
     *(.Rx_PoolSection)
-  } >RAM_D2
 
+  } >RAM_D2
+    
+    
+  .txUartBuf (NOLOAD) : AT(0x30002000)
+  {	
+	. = ALIGN(4);
+	*(.txUartBuffer)
+	
+  } >RAM_D2
+  
+  .rxUartBuf (NOLOAD) : AT(0x30001000)
+  {	
+	. = ALIGN(4);
+	*(.rxUartBuffer)
+	
+  } >RAM_D2
+  
+  
   /* Remove information from the standard libraries */
   /DISCARD/ :
   {
@@ -182,8 +199,6 @@ SECTIONS
     libm.a ( * )
     libgcc.a ( * )
   }
-
-
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }

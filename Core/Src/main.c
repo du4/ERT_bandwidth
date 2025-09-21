@@ -55,10 +55,12 @@ extern UART_HandleTypeDef huart5;
 
 uint8_t ethPressuresBankFullStatus = RESET;
 uint32_t main_cycle_counter = 0;
-//ALIGN_32BYTES (QFullPacket packetRX);
-QFullPacket packetRX;
-//ALIGN_32BYTES (QFullPacket packetTX);
-QFullPacket packetTX;
+
+//QFullPacket packetRX;
+//QFullPacket packetTX;
+__attribute__ ((section(".rxUartBuffer"))) __attribute__ ((aligned (4))) QFullPacket packetRX;
+__attribute__ ((section(".txUartBuffer"))) __attribute__ ((aligned (4))) QFullPacket packetTX;
+
 
 size_t cutIdRx = 0;
 size_t cutIdTx = 0;
@@ -133,10 +135,10 @@ int main(void)
   /* Enable the CPU Cache */
 
   /* Enable I-Cache---------------------------------------------------------*/
-//  SCB_EnableICache();
+  SCB_EnableICache();
 
   /* Enable D-Cache---------------------------------------------------------*/
-//  SCB_EnableDCache();
+  SCB_EnableDCache();
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -160,7 +162,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-//  MX_LWIP_Init();
+  MX_LWIP_Init();
   MX_UART4_Init();
   MX_UART5_Init();
   MX_TIM4_Init();
@@ -341,6 +343,21 @@ void MPU_Config(void)
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
   MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+
+  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+  /** Initializes and configures the Region and the memory to be protected
+  */
+  MPU_InitStruct.Number = MPU_REGION_NUMBER3;
+  MPU_InitStruct.BaseAddress = 0x30001000;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_4KB;
+
+  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+  /** Initializes and configures the Region and the memory to be protected
+  */
+  MPU_InitStruct.Number = MPU_REGION_NUMBER4;
+  MPU_InitStruct.BaseAddress = 0x30002000;
 
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
   /* Enables the MPU */
