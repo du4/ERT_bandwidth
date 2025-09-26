@@ -176,15 +176,8 @@ SECTIONS
 
   } >RAM_D2
     
-    
-  .txUartBuf (NOLOAD) : AT(0x30002000)
-  {	
-	. = ALIGN(4);
-	*(.txUartBuffer)
-	
-  } >RAM_D2
   
-  .rxUartBuf (NOLOAD) : AT(0x30001000)
+  .rxUartBuf  0x30005000 (NOLOAD) : 
   {	
 	. = ALIGN(4);
 	*(.rxUartBuffer)
