@@ -68,6 +68,7 @@ extern QFirstSectionPacket* pFirstSectionPacketTX;
 //extern uint32_t usart5_interrupt_conter;
 extern size_t cutIdTx;
 extern size_t cutIdRx;
+extern uint8_t ethPressuresBankFullStatus;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -232,7 +233,8 @@ void TIM4_IRQHandler(void)
 		HAL_TIM_Base_Stop_IT(&htim4);
 		cutIdTx = 1001;
 	}else{
-		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+		ethPressuresBankFullStatus = SET;
+//		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
 	}
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
