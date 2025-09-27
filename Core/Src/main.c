@@ -183,14 +183,14 @@ int main(void)
 
   HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
-//  HAL_TIM_Base_Start_IT(&htim4);
-  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+  HAL_TIM_Base_Start_IT(&htim4);
+//  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1){
-//	  MX_LWIP_Process();
+	  MX_LWIP_Process();
 
 	  if(ethPressuresBankFullStatus == SET){
 		  ethPressuresBankFullStatus = RESET;
