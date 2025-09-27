@@ -195,6 +195,7 @@ int main(void)
 	  if(ethPressuresBankFullStatus == SET){
 		  ethPressuresBankFullStatus = RESET;
 		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+		  cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
 	  }
 
 
