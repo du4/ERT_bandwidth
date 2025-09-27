@@ -86,6 +86,10 @@ void prepareData(size_t cutId){
 		QFirstSectionPacket* pPacket = pFirstSectionPacketTX + cut;
 		for (size_t step = 0; step < STEP_SIZE; ++step) {
 			pPacket->steps[step].cutIndex = cutId + cut;
+			pPacket->steps[step].stepData[step][0] = 112;
+			pPacket->steps[step].stepData[step][1] = 1;
+			pPacket->steps[step].stepData[step][2] = 2;
+
 			pPacket->currentSamples.cutIndex = cutId + cut;
 		}
 		pPacket->temperature = 36.6;
@@ -165,6 +169,7 @@ int main(void)
   MX_UART4_Init();
   MX_UART5_Init();
   MX_TIM4_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   udpServerAddr.addr =  inet_addr("192.168.0.53");
 
@@ -182,7 +187,7 @@ int main(void)
   prepareData(cutIdTx);
 
 //  HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
-
+  HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_Base_Start_IT(&htim4);
 //  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
   /* USER CODE END 2 */
@@ -194,7 +199,9 @@ int main(void)
 
 	  if(ethPressuresBankFullStatus == SET){
 		  ethPressuresBankFullStatus = RESET;
+		  HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_SET);
 		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+		  HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_RESET);
 		  cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
 	  }
 

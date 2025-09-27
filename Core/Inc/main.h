@@ -71,7 +71,7 @@ typedef struct{
 }QSecondSectionPacket;									// total size = 8*28 + 4 = 228
 
 typedef struct{//There are two entities for double buffered DMA
-	ALIGN_32BYTES( QFirstSectionPacket  firstSectionPacket [2*FIRST_SECTION_CUTS_PER_PACKET] ); 			// size = 300 * 5 * 2
+	ALIGN_32BYTES( QFirstSectionPacket  firstSectionPacket [2*FIRST_SECTION_CUTS_PER_PACKET] ); 		// size = 300 * 5 * 2
 	ALIGN_32BYTES( QSecondSectionPacket secondSectionPacket[2*FIRST_SECTION_CUTS_PER_PACKET] );			// size = 228 *5 * 2
 }QFullPacket;
 
@@ -101,6 +101,8 @@ void Error_Handler(void);
 #define LD3_RED_GPIO_Port GPIOB
 #define LD1_GR_Pin GPIO_PIN_11
 #define LD1_GR_GPIO_Port GPIOC
+#define P1_Pin GPIO_PIN_8
+#define P1_GPIO_Port GPIOB
 #define LD2_YEL_Pin GPIO_PIN_1
 #define LD2_YEL_GPIO_Port GPIOE
 
