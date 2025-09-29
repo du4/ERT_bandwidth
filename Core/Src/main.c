@@ -176,6 +176,7 @@ int main(void)
 
   pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
   pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
+  pFirstSectionPacketRxToUdp = pFirstSectionPacketTX;
 
    /* UDP client connect */
   udpClientConnect(udpServerAddr, 1890);//UDP_PORT);
@@ -208,7 +209,7 @@ int main(void)
 	  if(cutIdTx < 400){
 	  		ethPressuresBankFullStatus = SET;
 	  		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
-	 }
+	 }else
 
 
     /* USER CODE END WHILE */
