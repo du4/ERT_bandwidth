@@ -112,7 +112,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
 		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketTX = &packetTX.firstSectionPacket[cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-		prepareData(cutIdTx);
+//		prepareData(cutIdTx);
 	}
 }
 
@@ -186,10 +186,13 @@ int main(void)
   HAL_Delay(500);
 
 
-  memset(pFirstSectionPacketRX, 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
-  memset(pFirstSectionPacketTX, 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//  memset(pFirstSectionPacketRX, 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
+//  memset(pFirstSectionPacketTX, 0, 2*FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 
   prepareData(cutIdTx);
+  pFirstSectionPacketTX = &packetTX.firstSectionPacket[5];
+  prepareData(cutIdTx+FIRST_SECTION_CUTS_PER_PACKET);
+  pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
 
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_Base_Start_IT(&htim4);
@@ -209,7 +212,7 @@ int main(void)
 		  HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_SET);
 		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		  HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_RESET);
-		  prepareData(cutIdTx);
+//		  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
 	  }
 
     /* USER CODE END WHILE */
@@ -364,7 +367,11 @@ void MPU_Config(void)
   */
   MPU_InitStruct.Number = MPU_REGION_NUMBER3;
   MPU_InitStruct.BaseAddress = 0x30005000;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_8KB;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_4KB;
+
+  MPU_InitStruct.Number = MPU_REGION_NUMBER4;
+  MPU_InitStruct.BaseAddress = 0x30006000;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_4KB;
 
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
   /* Enables the MPU */
