@@ -244,7 +244,7 @@ void TIM2_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	if(cutIdTx > 1000){
+	if(cutIdTx > 400){
 		HAL_TIM_Base_Stop_IT(&htim4);
 //		cutIdTx = 1001;
 	}else{
