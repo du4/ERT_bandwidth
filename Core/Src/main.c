@@ -86,12 +86,12 @@ void prepareData(size_t cutId){
 	for (size_t cut = 0; cut < FIRST_SECTION_CUTS_PER_PACKET; ++cut) {
 		QFirstSectionPacket* pPacket = pFirstSectionPacketTX + cut;
 		for (size_t step = 0; step < STEP_SIZE; ++step) {
-//			for (size_t el = 0; el < STEP_SIZE; ++el) {
+			for (size_t el = 0; el < STEP_SIZE; ++el) {
 				pPacket->steps[step].cutIndex = cutId + cut;
-//				pPacket->steps[step].stepData[el][0] = 112;
-//				pPacket->steps[step].stepData[el][1] = 1;
-//				pPacket->steps[step].stepData[el][2] = 2;
-//			}
+				pPacket->steps[step].stepData[el][0] = 112;
+				pPacket->steps[step].stepData[el][1] = 1;
+				pPacket->steps[step].stepData[el][2] = 2;
+			}
 			pPacket->currentSamples.cutIndex = cutId + cut;
 		}
 		pPacket->temperature = 36.6;
@@ -178,7 +178,7 @@ int main(void)
 
   pFirstSectionPacketRX = &packetRX.firstSectionPacket[0];
   pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
-  pFirstSectionPacketRxToUdp = pFirstSectionPacketTX;
+  pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 
    /* UDP client connect */
   udpClientConnect(udpServerAddr, 1890);//UDP_PORT);
