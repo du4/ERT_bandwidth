@@ -98,6 +98,18 @@ void prepareData(size_t cutId){
 	}
 }
 
+void setIdData(size_t cutId){
+	for (size_t cut = 0; cut < FIRST_SECTION_CUTS_PER_PACKET; ++cut) {
+		QFirstSectionPacket* pPacket = pFirstSectionPacketTX + cut;
+		for (size_t step = 0; step < STEP_SIZE; ++step) {
+			for (size_t el = 0; el < STEP_SIZE; ++el) {
+				pPacket->steps[step].cutIndex = cutId + cut;
+			}
+			pPacket->currentSamples.cutIndex = cutId + cut;
+		}
+	}
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart5){
 		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
@@ -112,7 +124,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
 		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketTX = &packetTX.firstSectionPacket[cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-//		prepareData(cutIdTx);
+		setIdData(cutIdTx);
 	}
 }
 
