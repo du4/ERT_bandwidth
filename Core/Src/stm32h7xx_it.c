@@ -230,7 +230,7 @@ void DMA1_Stream1_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-	cutIdTx = 0;
+//	cutIdTx = 0;
 	HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
@@ -245,7 +245,7 @@ void TIM2_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	if(cutIdTx >= 400){
+	if( cutIdTx % 400 == 0 ){
 		HAL_TIM_Base_Stop_IT(&htim4);
 //		cutIdTx = 1001;
 	}else{
