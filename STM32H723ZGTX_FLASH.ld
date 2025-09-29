@@ -184,6 +184,13 @@ SECTIONS
 	
   } >RAM_D2
   
+    .txUartBuf  0x30006000 (NOLOAD) : 
+  {	
+	. = ALIGN(4);
+	*(.txUartBuffer)
+	
+  } >RAM_D2
+  
   
   /* Remove information from the standard libraries */
   /DISCARD/ :
