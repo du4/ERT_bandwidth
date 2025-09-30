@@ -195,7 +195,7 @@ int main(void)
   pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 
    /* UDP client connect */
-  udpClientConnect(udpServerAddr, 1890);//UDP_PORT);
+  udpClientConnect(udpServerAddr, UDP_PORT);
   udp_connected = SET;
   HAL_Delay(500);
 
@@ -208,7 +208,7 @@ int main(void)
   prepareData(cutIdTx+FIRST_SECTION_CUTS_PER_PACKET);
   pFirstSectionPacketTX = &packetTX.firstSectionPacket[0];
 
-  HAL_TIM_Base_Start_IT(&htim2);
+//  HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_Base_Start_IT(&htim4);
 
   HAL_UART_Receive_DMA (&huart5, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);

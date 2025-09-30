@@ -246,13 +246,12 @@ void TIM2_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	if( cutIdTx % 400 == 0 ){
-		HAL_TIM_Base_Stop_IT(&htim4);
-//		cutIdTx = 1001;
-	}else{
-		setIdData(cutIdTx);
-		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
-	}
+//	if( cutIdTx % 400 == 0 ){
+//		HAL_TIM_Base_Stop_IT(&htim4);
+//	}else{
+	setIdData(cutIdTx);
+	HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+//	}
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
