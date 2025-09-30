@@ -88,13 +88,14 @@ void prepareData(size_t cutId){
 		for (size_t step = 0; step < STEP_SIZE; ++step) {
 			for (size_t el = 0; el < STEP_SIZE; ++el) {
 				pPacket->steps[step].cutIndex = cutId + cut;
-				pPacket->steps[step].stepData[el][0] = 112;
-				pPacket->steps[step].stepData[el][1] = 1;
-				pPacket->steps[step].stepData[el][2] = 2;
+				pPacket->steps[step].stepData[el][0] = 120;
+				pPacket->steps[step].stepData[el][1] = 0;
+				pPacket->steps[step].stepData[el][2] = 0;
 			}
 			pPacket->currentSamples.cutIndex = cutId + cut;
 		}
 		pPacket->temperature = 36.6;
+		pPacket->status = 1;
 	}
 }
 
@@ -115,6 +116,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		pFirstSectionPacketRxToUdp = pFirstSectionPacketRX;
 		cutIdRx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketRX = &packetRX.firstSectionPacket[cutIdRx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
+		SCB_InvalidateDCache_by_Addr(pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		HAL_UART_Receive_DMA (huart, (uint8_t *)pFirstSectionPacketRX, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		ethPressuresBankFullStatus = SET;
 	}
@@ -124,7 +126,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
 		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
 		pFirstSectionPacketTX = &packetTX.firstSectionPacket[cutIdTx%(2*FIRST_SECTION_CUTS_PER_PACKET)];
-		setIdData(cutIdTx);
+//		setIdData(cutIdTx);
 	}
 }
 
@@ -224,7 +226,7 @@ int main(void)
 		  HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_SET);
 		  udpClientSend(pFirstSectionPacketRxToUdp, FIRST_SECTION_CUTS_PER_PACKET * SECTION_PACKET_SIZE);
 		  HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_RESET);
-//		  HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
+
 	  }
 
     /* USER CODE END WHILE */

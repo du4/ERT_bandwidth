@@ -250,8 +250,7 @@ void TIM4_IRQHandler(void)
 		HAL_TIM_Base_Stop_IT(&htim4);
 //		cutIdTx = 1001;
 	}else{
-//		ethPressuresBankFullStatus = SET;
-//		cutIdTx += FIRST_SECTION_CUTS_PER_PACKET;
+		setIdData(cutIdTx);
 		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)pFirstSectionPacketTX, FIRST_SECTION_CUTS_PER_PACKET*SECTION_PACKET_SIZE);
 	}
   /* USER CODE END TIM4_IRQn 0 */

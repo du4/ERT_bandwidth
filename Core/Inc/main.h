@@ -92,7 +92,7 @@ typedef struct{//There are two entities for double buffered DMA
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void setIdData(size_t cutId);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
